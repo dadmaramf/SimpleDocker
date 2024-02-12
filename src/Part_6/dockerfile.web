@@ -1,0 +1,33 @@
+FROM debian:12
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y \
+       gnupg1 \
+       ca-certificates \
+       gcc \
+       spawn-fcgi \
+       libc6-dev \
+       libfcgi-dev \
+       nginx \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY default /etc/nginx/sites-available/default
+
+COPY main.c /tmp/
+
+RUN cd /tmp \
+    && gcc -o hello.fcgi main.c -lfcgi \
+    && mv hello.fcgi /usr/local/bin/ 
+
+RUN useradd -ms /bin/bash myuser \
+    && chown -R myuser:myuser \
+    /etc/nginx \
+    /var \
+    /run
+
+USER myuser
+
+CMD spawn-fcgi -p 8080 /usr/local/bin/hello.fcgi && nginx -g "daemon off;"
+
+

@@ -1,0 +1,24 @@
+version: "3.8"
+services:
+  proxy:
+    container_name: "proxy"
+    build: 
+      context: .
+      dockerfile: dockerfile.proxy
+    ports:
+      - "80:8080"
+    networks:
+      - netWork
+  web:
+    container_name: "web"
+    build: 
+      context: .
+      dockerfile: dockerfile.web
+    networks:
+      - netWork
+
+networks:
+  netWork:
+    driver: bridge
+
+
